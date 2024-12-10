@@ -1,5 +1,11 @@
 package ua.ithillel.gof.proxy.model;
 
+import ua.ithillel.gof.proxy.client.OpenWeatherClient;
+import ua.ithillel.gof.proxy.client.response.OpenWeatherResponse;
+import ua.ithillel.gof.proxy.manager.WeatherManager;
+
+import java.net.http.HttpClient;
+
 public class Weather {
     private double temperature;
     private double humidity;

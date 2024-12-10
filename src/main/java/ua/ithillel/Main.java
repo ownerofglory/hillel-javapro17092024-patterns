@@ -1,23 +1,95 @@
-package ua.ithillel.gof;
+package ua.ithillel;
 
 //OPENWEATHER_API_KEY
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ua.ithillel.gof.chain.*;
+import ua.ithillel.gof.memento.TextDocument;
 import ua.ithillel.gof.proxy.cache.CacheHandler;
 import ua.ithillel.gof.proxy.client.CocktailDbClient;
 import ua.ithillel.gof.proxy.client.DrinkClient;
 import ua.ithillel.gof.proxy.manager.DefaultDrinkManager;
 import ua.ithillel.gof.proxy.manager.DrinkManager;
 import ua.ithillel.gof.proxy.model.Drink;
+import ua.ithillel.gof.state.Order;
+import ua.ithillel.gof.state.PaymentProcessor;
+import ua.ithillel.gof.state.Product;
+import ua.ithillel.gof.state.ShipmentProcessor;
 import ua.ithillel.gof.visitor.exporter.ExcelExporter;
 import ua.ithillel.gof.visitor.model.*;
+import ua.ithillel.grasp.cohesion.Database;
+import ua.ithillel.grasp.cohesion.Movie;
+import ua.ithillel.grasp.cohesion.MoviesDao;
+import ua.ithillel.grasp.cohesion.MoviesDaoDb;
 
 import java.lang.reflect.Proxy;
 import java.net.http.HttpClient;
 import java.util.List;
 
 public class Main {
+
+    private static void processTextDoc(TextDocument textDocument) {
+        textDocument.setText(textDocument.getText() + "changes");
+
+        textDocument.restore();
+    }
+
     public static void main(String[] args) {
+//        Database database = new Database();
+//        //database.createConn();
+//
+//        MoviesDao moviDao =  new MoviesDaoDb(database);
+//        List<Movie> allMovies = moviDao.getAllMovies();
+
+//        ServerFactory serverFactory = new ServerFactory();
+//        Server server = serverFactory.createServer(ServerType.MULTI_THREADED, 8080);
+
+        Message[] messages = {
+            new Message("hello!"),
+                new Message("how are you?"),
+                new Message("bad message"),
+                new Message("very looooooo0o0oong meessage"),
+                new Message("como estas?"),
+        };
+        MessageHanlder ah = new AgressivnessHandler();
+        MessageHanlder lh = new LengthHandler();
+        MessageHanlder pl = new PreferableLanguageHandler(List.of("EN", "UA"));
+
+        ah.setNext(lh);
+        lh.setNext(pl);
+
+        MessageReceiver messageReceiver = new MessageReceiver(ah);
+
+        for (Message message : messages) {
+            messageReceiver.receiveMessage(message);
+        }
+
+        Order order = new Order();
+        order.setProducts(List.of(new Product("T-Shirt", 12.0), new Product("Phone", 200.0)));
+
+        PaymentProcessor paymentProcessor = new PaymentProcessor();
+        paymentProcessor.process(order);
+
+        ShipmentProcessor shipmentProcessor = new ShipmentProcessor();
+        shipmentProcessor.process(order);
+
+
+        TextDocument textDocument = new TextDocument();
+        textDocument.setText("Hello");
+        textDocument.persist();
+
+        textDocument.setText(" world");
+        textDocument.persist();
+        textDocument.setText("\n");
+        textDocument.persist();
+        textDocument.setText("How are you?");
+        textDocument.persist();
+
+
+        textDocument.setText("bad");
+
+        textDocument.restore();
+
         System.out.println("Hello world!");
         Book book1 = new Book.Builder()
                 .setId("1")
@@ -68,6 +140,9 @@ public class Main {
         bookCollection.accept(counterVisitor);
         bookCollection.accept(exportVisitor);
         bookCollection.accept(jsonVisitor);
+
+
+        List.of(book1, book2, book3, book4).forEach(System.out::println);
 
 
         //  cache

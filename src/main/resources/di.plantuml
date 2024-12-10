@@ -1,0 +1,9 @@
+@startuml
+class Notifier {
+    sender: EmailSender
+}
+
+class EmailSender
+
+Notifier --o EmailSender
+@enduml
